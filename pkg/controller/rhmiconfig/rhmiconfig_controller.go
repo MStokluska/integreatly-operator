@@ -26,9 +26,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	integreatlyv1alpha1 "github.com/integr8ly/integreatly-operator/pkg/apis/integreatly/v1alpha1"
+	"github.com/integr8ly/integreatly-operator/pkg/controller/rhmiconfig/helpers"
+	"github.com/integr8ly/integreatly-operator/pkg/controller/subscription/rhmiConfigs"
+	operatorsv1alpha1 "github.com/operator-framework/operator-lifecycle-manager/pkg/api/apis/operators/v1alpha1"
 	k8sErr "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -111,6 +115,52 @@ func (r *ReconcileRHMIConfig) Reconcile(request reconcile.Request) (reconcile.Re
 		}
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
+	}
+
+	// logic for updating the status of RHMIConfig
+	subscription := &operatorsv1alpha1.Subscription{}
+	err = r.client.Get(context.TODO(), k8sclient.ObjectKey{Name: "integreatly", Namespace: request.NamespacedName.Namespace}, subscription)
+	if err != nil {
+		if k8sErr.IsNotFound(err) {
+			// Request object not found, could have been deleted after reconcile request. Return and don't requeue
+			return reconcile.Result{}, nil
+		}
+		return reconcile.Result{}, err
+	}
+
+	latestRHMIInstallPlan, err := rhmiConfigs.GetLatestInstallPlan(r.context, subscription, r.client)
+	if err != nil {
+		if k8sErr.IsNotFound(err) {
+			// if installplan is not found trigger the creation of a new one
+			err = rhmiConfigs.CreateInstallPlan(r.context, subscription, r.client)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+		return reconcile.Result{}, err
+	}
+
+	latestRHMICSV, err := rhmiConfigs.GetCSV(latestRHMIInstallPlan)
+
+	isServiceAffecting := rhmiConfigs.IsUpgradeServiceAffecting(latestRHMICSV)
+
+	if reschedule, ok := rhmiConfig.Annotations[integreatlyv1alpha1.RecalculateScheduleAnnotation]; ok && reschedule == "true" {
+		err = helpers.UpdateStatus(context.TODO(), r.client, rhmiConfig, latestRHMIInstallPlan, subscription.Status.CurrentCSV)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
+		rhmiConfig.Annotations[integreatlyv1alpha1.RecalculateScheduleAnnotation] = ""
+		err = r.client.Update(context.TODO(), rhmiConfig)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
+	} else if isServiceAffecting && subscription.Status.CurrentCSV != rhmiConfig.Status.TargetVersion {
+		err = helpers.UpdateStatus(context.TODO(), r.client, rhmiConfig, latestRHMIInstallPlan, subscription.Status.CurrentCSV)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	retryRequeue := reconcile.Result{

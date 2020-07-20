@@ -12,7 +12,6 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/integr8ly/integreatly-operator/pkg/apis/integreatly/v1alpha1"
 	integreatlyv1alpha1 "github.com/integr8ly/integreatly-operator/pkg/apis/integreatly/v1alpha1"
 	catalogsourceClient "github.com/integr8ly/integreatly-operator/pkg/resources/catalogsource"
 
@@ -86,14 +85,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	err = c.Watch(&source.Kind{Type: &operatorsv1alpha1.Subscription{}}, &handler.EnqueueRequestForObject{})
-	if err != nil {
-		return err
-	}
-
-	err = c.Watch(&source.Kind{Type: &integreatlyv1alpha1.RHMIConfig{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &operatorsv1alpha1.Subscription{},
-	})
 	if err != nil {
 		return err
 	}
@@ -242,26 +233,6 @@ func (r *ReconcileSubscription) HandleUpgrades(ctx context.Context, rhmiSubscrip
 	}
 
 	isServiceAffecting := rhmiConfigs.IsUpgradeServiceAffecting(latestRHMICSV)
-
-	// checks if there is changes in the rhmiconfig cr and recalculate the status
-	if reschedule, ok := config.Annotations[v1alpha1.RecalculateScheduleAnnotation]; ok && reschedule == "true" {
-		err = rhmiConfigs.UpdateStatus(ctx, r.client, config, latestRHMIInstallPlan, rhmiSubscription.Status.CurrentCSV)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-
-		config.Annotations[v1alpha1.RecalculateScheduleAnnotation] = ""
-		err = r.client.Update(ctx, config)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-
-	} else if isServiceAffecting && rhmiSubscription.Status.CurrentCSV != config.Status.TargetVersion {
-		err = rhmiConfigs.UpdateStatus(ctx, r.client, config, latestRHMIInstallPlan, rhmiSubscription.Status.CurrentCSV)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-	}
 
 	canUpgradeNow, err := rhmiConfigs.CanUpgradeNow(config, installation)
 	if err != nil {
