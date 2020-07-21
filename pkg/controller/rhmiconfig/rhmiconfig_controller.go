@@ -132,7 +132,7 @@ func (r *ReconcileRHMIConfig) Reconcile(request reconcile.Request) (reconcile.Re
 	if err != nil {
 		if k8sErr.IsNotFound(err) {
 			// if installplan is not found trigger the creation of a new one
-			err = rhmiConfigs.CreateInstallPlan(r.context, subscription, r.client)
+			err = rhmiConfigs.CreateInstallPlan(context.TODO(), subscription, r.client)
 			if err != nil {
 				return reconcile.Result{}, err
 			}
@@ -144,22 +144,24 @@ func (r *ReconcileRHMIConfig) Reconcile(request reconcile.Request) (reconcile.Re
 
 	isServiceAffecting := rhmiConfigs.IsUpgradeServiceAffecting(latestRHMICSV)
 
-	if reschedule, ok := rhmiConfig.Annotations[integreatlyv1alpha1.RecalculateScheduleAnnotation]; ok && reschedule == "true" {
-		err = helpers.UpdateStatus(context.TODO(), r.client, rhmiConfig, latestRHMIInstallPlan, subscription.Status.CurrentCSV)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
+	if rhmiConfigs.IsUpgradeAvailable(subscription) {
+		if reschedule, ok := rhmiConfig.Annotations[integreatlyv1alpha1.RecalculateScheduleAnnotation]; ok && reschedule == "true" {
+			err = helpers.UpdateStatus(context.TODO(), r.client, rhmiConfig, latestRHMIInstallPlan, subscription.Status.CurrentCSV)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
 
-		rhmiConfig.Annotations[integreatlyv1alpha1.RecalculateScheduleAnnotation] = ""
-		err = r.client.Update(context.TODO(), rhmiConfig)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
+			rhmiConfig.Annotations[integreatlyv1alpha1.RecalculateScheduleAnnotation] = ""
+			err = r.client.Update(context.TODO(), rhmiConfig)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
 
-	} else if isServiceAffecting && subscription.Status.CurrentCSV != rhmiConfig.Status.TargetVersion {
-		err = helpers.UpdateStatus(context.TODO(), r.client, rhmiConfig, latestRHMIInstallPlan, subscription.Status.CurrentCSV)
-		if err != nil {
-			return reconcile.Result{}, err
+		} else if isServiceAffecting && subscription.Status.CurrentCSV != rhmiConfig.Status.TargetVersion {
+			err = helpers.UpdateStatus(context.TODO(), r.client, rhmiConfig, latestRHMIInstallPlan, subscription.Status.CurrentCSV)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
 		}
 	}
 

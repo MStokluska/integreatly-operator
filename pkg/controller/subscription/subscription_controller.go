@@ -89,6 +89,14 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
+	err = c.Watch(&source.Kind{Type: &integreatlyv1alpha1.RHMIConfig{}}, &handler.EnqueueRequestForOwner{
+		IsController: true,
+		OwnerType:    &operatorsv1alpha1.Subscription{},
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
