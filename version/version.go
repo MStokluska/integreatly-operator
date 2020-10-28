@@ -1,6 +1,6 @@
 package version
 
 var (
-	Version            = "2.3.0"
-	IntegreatlyVersion = "2.3.0"
+	Version            = "0.2.1"
+	IntegreatlyVersion = "0.2.1"
 )
