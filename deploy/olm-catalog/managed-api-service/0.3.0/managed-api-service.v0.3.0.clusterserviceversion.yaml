@@ -31,6 +31,7 @@ metadata:
             "deadMansSnitchSecret": "redhat-rhmi-deadmanssnitch",
             "namespacePrefix": "redhat-rhmi-",
             "pagerDutySecret": "redhat-rhmi-pagerduty",
+            "priorityClassName": "rhoam-pod-priority",
             "selfSignedCerts": true,
             "smtpSecret": "redhat-rhmi-smtp",
             "type": "managed",
