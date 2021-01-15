@@ -79,10 +79,12 @@ const (
 	externalRedisSecretName        = "system-redis"
 	externalBackendRedisSecretName = "backend-redis"
 	externalPostgresSecretName     = "system-database"
-	apicastStagingName             = "apicast-staging"
-	apicastProductionName          = "apicast-production"
-	systemSeedSecretName           = "system-seed"
-	systemMasterApiCastSecretName  = "system-master-apicast"
+
+	numberOfReplicas              int64 = 2
+	apicastStagingName                  = "apicast-staging"
+	apicastProductionName               = "apicast-production"
+	systemSeedSecretName                = "system-seed"
+	systemMasterApiCastSecretName       = "system-master-apicast"
 
 	apicastRatelimiting = "apicast-ratelimit"
 	registrySecretName  = "threescale-registry-auth"

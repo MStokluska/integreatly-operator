@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	configv1 "github.com/openshift/api/config/v1"
-	"os"
 	"strings"
 
 	prometheus "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
@@ -64,9 +62,6 @@ const (
 	federationRoleBindingName                 = "federation-view"
 	clusterMonitoringPrometheusServiceAccount = "prometheus-k8s"
 	clusterMonitoringNamespace                = "openshift-monitoring"
-
-	// Cluster infrastructure
-	clusterInfraName = "cluster"
 )
 
 type Reconciler struct {
@@ -591,7 +586,7 @@ func (r *Reconciler) reconcileComponents(ctx context.Context, serverClient k8scl
 			SelfSignedCerts:                  r.installation.Spec.SelfSignedCerts,
 		}
 
-		if isMultiAZCluster && r.installation.Spec.Type == string(integreatlyv1alpha1.InstallationTypeManagedApi) {
+		if isMultiAZCluster {
 			m.Spec.Affinity = resources.SelectAntiAffinityForCluster(antiAffinityRequired, map[string]string{
 				"prometheus":   "application-monitoring",
 				"alertmanager": "application-monitoring",
@@ -745,21 +740,11 @@ func (r *Reconciler) reconcileAlertManagerConfigSecret(ctx context.Context, serv
 		smtpToCustomerAddress = prepareEmailAddresses(smtpToCustomerAddressCRVal)
 	}
 
-	smtpAlertFromAddress := os.Getenv(integreatlyv1alpha1.EnvKeyAlertSMTPFrom)
-	if r.installation.Spec.AlertFromAddress != "" {
-		smtpAlertFromAddress = r.installation.Spec.AlertFromAddress
-	}
-
-	clusterInfra := &configv1.Infrastructure{}
-	if err := serverClient.Get(ctx, k8sclient.ObjectKey{Name: clusterInfraName}, clusterInfra); err != nil {
-		return integreatlyv1alpha1.PhaseFailed, fmt.Errorf("failed to fetch cluster infra details for alertmanager config: %w", err)
-	}
-
 	// parse the config template into a secret object
 	templateUtil := NewTemplateHelper(map[string]string{
 		"SMTPHost":              string(smtpSecret.Data["host"]),
 		"SMTPPort":              string(smtpSecret.Data["port"]),
-		"SMTPFrom":              smtpAlertFromAddress,
+		"AlertManagerRoute":     alertmanagerRoute.Spec.Host,
 		"SMTPUsername":          string(smtpSecret.Data["username"]),
 		"SMTPPassword":          string(smtpSecret.Data["password"]),
 		"SMTPToCustomerAddress": smtpToCustomerAddress,
@@ -767,7 +752,6 @@ func (r *Reconciler) reconcileAlertManagerConfigSecret(ctx context.Context, serv
 		"SMTPToBUAddress":       smtpToBUAddress,
 		"PagerDutyServiceKey":   pagerDutySecret,
 		"DeadMansSnitchURL":     dmsSecret,
-		"Subject":               fmt.Sprintf(`[%s] {{template "email.default.subject" . }}`, clusterInfra.Status.InfrastructureName),
 	})
 	configSecretData, err := templateUtil.loadTemplate(alertManagerConfigTemplatePath)
 	if err != nil {

@@ -7,8 +7,8 @@ products:
   - name: rhoam
     environments:
       - osd-fresh-install
-tags:
-  - per-release
+    targets:
+      - 1.0.0
 ---
 
 # A30 - Validate installation of RHOAM addon and integration with LDAP IDP
@@ -20,7 +20,6 @@ We want to validate that customer is able to install RHOAM via OCM UI and can us
 ## Prerequisites
 
 - access to [AWS secrets file in 'vault' repository](https://gitlab.cee.redhat.com/integreatly-qe/vault/-/blob/master/SECRETS.md) (follow the guide in the [README](https://gitlab.cee.redhat.com/integreatly-qe/vault/-/blob/master/README.md) to unlock the vault with git-crypt key)
-- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) installed locally
 - login to [OCM UI (staging environment)](https://qaprodauth.cloud.redhat.com/beta/openshift/)
 - access to the [spreadsheet with shared AWS credentials](https://docs.google.com/spreadsheets/d/1P57LhhhvhJOT5y7Y49HlL-7BRcMel7qWWJwAw3JCGMs)
 
@@ -58,7 +57,7 @@ Host prefix: /26
 3. Fill in the following parameters and click on `Install`
 
 ```
-CIDR range: "10.1.0.0/26" (note this down to use it later for another verification step)
+CIDR range: "10.1.0.0/24"
 Notification email: "<your-username>+ID1@redhat.com <your-username>+ID2@redhat.com"
 ```
 
@@ -86,28 +85,6 @@ watch "oc get rhmi rhoam -n redhat-rhoam-operator -o json | jq .status.stage"
 6. Once the status is "completed", the installation is finished and you can go to another step
 7. Go to `Monitoring` section of your cluster in OCM UI
    > Make sure no alerts are firing
-
-**Verify custom RHOAM CIDR range was applied correctly**
-
-1. Export following variables (it is required to be logged into the OpenShift cluster as kubeadmin)
-
-```bash
-export AWS_ACCESS_KEY_ID=$(oc get secret aws-creds -n kube-system -o jsonpath={.data.aws_access_key_id} | base64 --decode) \
-AWS_SECRET_ACCESS_KEY=$(oc get secret aws-creds -n kube-system -o jsonpath={.data.aws_secret_access_key} | base64 --decode) \
-AWS_REGION=$(oc get infrastructure cluster -o jsonpath='{.status.platformStatus.aws.region}')
-```
-
-2. Run following AWS command
-
-```bash
-aws ec2 describe-vpcs --filters "Name=tag-key,Values=integreatly.org/clusterID" --region $AWS_REGION | jq -r '.Vpcs[0].CidrBlockAssociationSet[0].CidrBlock'
-```
-
-> Verify that the CIDR block you get on the output matches with the one that was specified in the installation form (via OCM UI) ^
-
-**Note**
-
-The scenario with **default CIDR range**, when user doesn't specify any CIDR, so it is automatically created by CRO, is covered by [the installation pipeline](https://github.com/integr8ly/delorean/blob/0cd8e05a49540c0c505c3c291629dd737d7cc818/scripts/ocm/ocm.sh#L144) - it doesn't provide any addon params, so CIDR block has to be created by CRO. If the pipeline finishes successfully, it means that the CIDR block was correct.
 
 **Verify that LDAP IDP can be configured**
 
@@ -259,39 +236,7 @@ Verify the integration with the LDAP server for a regular user
 
    > You should be redirected to the 3scale main page.
 
-**Verify RHOAM uninstall**
-
-1. Go to OCM UI, select your cluster, go to Add-ons tab
-2. Click on the three dots menu and select "Uninstall add-on"
-   > Verify that RHOAM addon updates the status to "Uninstalling"
-3. Go to OpenShift console of your cluster
-   > In a while you should see RHOAM namespaces disappearing
-   > Uninstall of RHOAM should finish in ~20 minutes (all `redhat-rhoam-*` namespaces should be gone)
-4. If there's still `redhat-rhoam-operator` namespace present after 20 minutes, follow the next steps, otherwise skip to the last step
-5. Go to `redhat-rhoam-operator` namespace and select Operators -> Installed operators
-   > Verify that there's no operator subscription present
-6. Go to `redhat-rhoam-operator` namespace and search for "RHMI"
-   > Verify that there's nothing in the results
-7. If there's no subscription or RHMI CR present in `redhat-rhoam-operator` namespace, you have to wait for `hive` to finish the uninstall (sometimes it could take more than 10 minutes)
-8. Go to OCM UI, select your cluster, go to Add-ons tab and verify that RHOAM addon is uninstalled (you should see a button "Install" again)
-
-**Verify RHOAM secrets are recreated on reinstall and RHOAM can be uninstalled during "preflight checks" phase**
-
-1. From OCM UI, trigger RHOAM install again
-2. Go to OpenShift console and select `redhat-rhoam-operator` namespace
-3. Go to Workloads -> Secrets
-   > Verify that `redhat-rhoam-deadmanssnitch`, `redhat-rhoam-pagerduty` and `redhat-rhoam-smtp` are present
-4. Go to OCM UI, select your cluster
-5. Note your cluster's ID from the address bar (https://qaprodauth.cloud.redhat.com/beta/openshift/details/<cluster_id>#overview)
-6. Delete the addon via ocm CLI
-
-```bash
-ocm delete /api/clusters_mgmt/v1/clusters/<CLUSTER-ID>/addons/managed-api-service
-```
-
-7. Go back to OpenShift console and verify RHMI CR was removed as well as and `redhat-rhoam-operator` namespace
-
-**As the test is finished lets stop the EC2 instance.**
+As the test is finished lets stop the EC2 instance.
 
 1. Access the AWS EC2 console, you can find the credentials in https://gitlab.cee.redhat.com/integreatly-qe/vault/-/blob/master/SECRETS.md
 

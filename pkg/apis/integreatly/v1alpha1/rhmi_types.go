@@ -71,7 +71,7 @@ var (
 	VersionMonitoring          ProductVersion = "1.4.0"
 	Version3Scale              ProductVersion = "2.9.1"
 	VersionUps                 ProductVersion = "2.3.2"
-	VersionCloudResources      ProductVersion = "0.23.0"
+	VersionCloudResources      ProductVersion = "0.22.3"
 	VersionFuseOnline          ProductVersion = "7.6"
 	VersionDataSync            ProductVersion = "0.9.4"
 	VersionRHSSO               ProductVersion = "7.4"
@@ -103,7 +103,7 @@ var (
 	OperatorVersionCodeReadyWorkspaces OperatorVersion = "2.1.1"
 	OperatorVersion3Scale              OperatorVersion = "0.6.1"
 	OperatorVersionFuse                OperatorVersion = "1.6.0"
-	OperatorVersionCloudResources      OperatorVersion = "0.23.0"
+	OperatorVersionCloudResources      OperatorVersion = "0.22.3"
 	OperatorVersionUPS                 OperatorVersion = "0.5.0"
 	OperatorVersionApicurioRegistry    OperatorVersion = "0.0.3"
 	OperatorVersionApicurito           OperatorVersion = "1.6.0"
@@ -119,8 +119,6 @@ var (
 
 	DefaultOriginPullSecretName      = "pull-secret"
 	DefaultOriginPullSecretNamespace = "openshift-config"
-
-	EnvKeyAlertSMTPFrom = "ALERT_SMTP_FROM"
 )
 
 // RHMISpec defines the desired state of Installation
@@ -133,14 +131,12 @@ type RHMISpec struct {
 	RoutingSubdomain       string                 `json:"routingSubdomain,omitempty"`
 	MasterURL              string                 `json:"masterURL,omitempty"`
 	NamespacePrefix        string                 `json:"namespacePrefix"`
-	RebalancePods          bool                   `json:"rebalancePods,omitempty"`
 	SelfSignedCerts        bool                   `json:"selfSignedCerts,omitempty"`
 	PullSecret             PullSecretSpec         `json:"pullSecret,omitempty"`
 	UseClusterStorage      string                 `json:"useClusterStorage,omitempty"`
 	AlertingEmailAddress   string                 `json:"alertingEmailAddress,omitempty"`
 	PriorityClassName      string                 `json:"priorityClassName,omitempty"`
 	AlertingEmailAddresses AlertingEmailAddresses `json:"alertingEmailAddresses,omitempty"`
-	AlertFromAddress       string                 `json:"alertFromAddress,omitempty"`
 
 	// OperatorsInProductNamespace is a flag that decides if
 	// the product operators should be installed in the product

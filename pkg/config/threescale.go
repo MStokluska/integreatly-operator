@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-
 	"github.com/integr8ly/integreatly-operator/test/resources"
 
 	threescaleapps "github.com/3scale/3scale-operator/pkg/apis/apps"
@@ -105,7 +104,20 @@ func (t *ThreeScale) Validate() error {
 }
 
 func (t *ThreeScale) GetReplicasConfig(inst *integreatlyv1alpha1.RHMI) map[string]int64 {
-	threeScaleComponents := map[string]int64{
+	if resources.RunningInProw(inst) {
+		return map[string]int64{
+			"systemApp":       1,
+			"systemSidekiq":   1,
+			"apicastProd":     1,
+			"apicastStage":    1,
+			"backendListener": 1,
+			"backendWorker":   1,
+			"backendCron":     1,
+			"zyncApp":         1,
+			"zyncQue":         1,
+		}
+	}
+	return map[string]int64{
 		"systemApp":       3,
 		"systemSidekiq":   3,
 		"apicastProd":     6,
@@ -115,19 +127,5 @@ func (t *ThreeScale) GetReplicasConfig(inst *integreatlyv1alpha1.RHMI) map[strin
 		"backendCron":     1,
 		"zyncApp":         3,
 		"zyncQue":         3,
-	}
-
-	if resources.RunningInProw(inst) {
-		setDefaultNumberOfReplicas(1, threeScaleComponents)
-	} else if inst.Spec.Type != string(integreatlyv1alpha1.InstallationTypeManagedApi) {
-		setDefaultNumberOfReplicas(2, threeScaleComponents)
-	}
-
-	return threeScaleComponents
-}
-
-func setDefaultNumberOfReplicas(defaultNumberOfReplicas int64, threeScaleComponents map[string]int64) {
-	for i := range threeScaleComponents {
-		threeScaleComponents[i] = int64(defaultNumberOfReplicas)
 	}
 }

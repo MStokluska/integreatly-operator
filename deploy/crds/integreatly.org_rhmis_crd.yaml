@@ -27,8 +27,6 @@ spec:
         spec:
           description: RHMISpec defines the desired state of Installation
           properties:
-            alertFromAddress:
-              type: string
             alertingEmailAddress:
               type: string
             alertingEmailAddresses:
@@ -66,8 +64,6 @@ spec:
               - name
               - namespace
               type: object
-            rebalancePods:
-              type: boolean
             routingSubdomain:
               type: string
             selfSignedCerts:

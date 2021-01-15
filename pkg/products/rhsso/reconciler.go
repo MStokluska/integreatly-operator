@@ -3,8 +3,8 @@ package rhsso
 import (
 	"context"
 	"fmt"
-
 	"github.com/integr8ly/integreatly-operator/pkg/products/rhssocommon"
+	testResources "github.com/integr8ly/integreatly-operator/test/resources"
 	"github.com/integr8ly/integreatly-operator/version"
 
 	"github.com/integr8ly/integreatly-operator/pkg/resources/events"
@@ -42,9 +42,9 @@ var (
 	githubIdpAlias            = "github"
 	authFlowAlias             = "authdelay"
 	adminCredentialSecretName = "credential-" + keycloakName
+	numberOfReplicas          = 2
 	ssoType                   = "rhsso"
 	postgresResourceName      = "rhsso-postgres-rhmi"
-	routeName                 = "keycloak-edge"
 )
 
 const (
@@ -150,7 +150,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, installation *integreatlyv1a
 		return phase, err
 	}
 
-	phase, err = r.CreateKeycloakRoute(ctx, serverClient, r.Config, r.Config.RHSSOCommon, routeName)
+	phase, err = r.CreateKeycloakRoute(ctx, serverClient, r.Config, r.Config.RHSSOCommon)
 	if err != nil || phase != integreatlyv1alpha1.PhaseCompleted {
 		events.HandleError(r.Recorder, installation, phase, "Failed to handle in progress phase", err)
 		return phase, err
@@ -231,12 +231,13 @@ func (r *Reconciler) reconcileComponents(ctx context.Context, installation *inte
 		kc.Spec.Profile = RHSSOProfile
 		kc.Spec.PodDisruptionBudget = keycloak.PodDisruptionBudgetConfig{Enabled: true}
 		kc.Spec.KeycloakDeploymentSpec.Resources = corev1.ResourceRequirements{
-			Requests: corev1.ResourceList{corev1.ResourceCPU: k8sresource.MustParse("650m"), corev1.ResourceMemory: k8sresource.MustParse("2G")},
-			Limits:   corev1.ResourceList{corev1.ResourceCPU: k8sresource.MustParse("650m"), corev1.ResourceMemory: k8sresource.MustParse("2G")},
+			Requests: corev1.ResourceList{corev1.ResourceCPU: k8sresource.MustParse("1"), corev1.ResourceMemory: k8sresource.MustParse("2G")},
+			Limits:   corev1.ResourceList{corev1.ResourceCPU: k8sresource.MustParse("1"), corev1.ResourceMemory: k8sresource.MustParse("2G")},
 		}
 		//OSD has more resources than PROW, so adding an exception
-		numberOfReplicas := r.Config.GetReplicasConfig(r.Installation)
-
+		if testResources.RunningInProw(r.Installation) {
+			numberOfReplicas = 1
+		}
 		if kc.Spec.Instances < numberOfReplicas {
 			kc.Spec.Instances = numberOfReplicas
 		}
