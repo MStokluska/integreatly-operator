@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/integr8ly/integreatly-operator/pkg/resources/poddistribution"
 	"os"
 	"reflect"
 	"strconv"
@@ -172,7 +171,6 @@ func createInstallationCR(ctx context.Context, serverClient k8sclient.Client) er
 	// Creates installation CR in case there is none
 	if len(installationList.Items) == 0 {
 		useClusterStorage, _ := os.LookupEnv("USE_CLUSTER_STORAGE")
-		rebalancePods := getRebalancePods()
 		cssreAlertingEmailAddress, _ := os.LookupEnv(alertingEmailAddressEnvName)
 		buAlertingEmailAddress, _ := os.LookupEnv(buAlertingEmailAddressEnvName)
 
@@ -211,7 +209,6 @@ func createInstallationCR(ctx context.Context, serverClient k8sclient.Client) er
 			Spec: integreatlyv1alpha1.RHMISpec{
 				Type:                 installType,
 				NamespacePrefix:      namespacePrefix,
-				RebalancePods:        rebalancePods,
 				SelfSignedCerts:      false,
 				SMTPSecret:           namespacePrefix + "smtp",
 				DeadMansSnitchSecret: namespacePrefix + "deadmanssnitch",
@@ -238,13 +235,6 @@ func createInstallationCR(ctx context.Context, serverClient k8sclient.Client) er
 	}
 
 	return nil
-}
-func getRebalancePods() bool {
-	rebalance, exists := os.LookupEnv("REBALANCE_PODS")
-	if !exists || rebalance == "true" {
-		return true
-	}
-	return false
 }
 
 func getCrName(installType string) string {
@@ -445,29 +435,11 @@ func (r *ReconcileInstallation) Reconcile(request reconcile.Request) (reconcile.
 		installation.Status.Stage = integreatlyv1alpha1.StageName("complete")
 		metrics.RHMIStatusAvailable.Set(1)
 		retryRequeue.RequeueAfter = 5 * time.Minute
-		if installation.Spec.RebalancePods {
-			r.reconcilePodDistribution(installation)
-		}
 	}
 	metrics.SetRHMIStatus(installation)
 
 	err = r.updateStatusAndObject(originalInstallation, installation)
 	return retryRequeue, err
-}
-
-func (r *ReconcileInstallation) reconcilePodDistribution(installation *integreatlyv1alpha1.RHMI) {
-
-	serverClient, err := k8sclient.New(r.restConfig, k8sclient.Options{})
-	if err != nil {
-		logrus.Errorf("Error getting server client for pod distribution %v", err.Error())
-		installation.Status.LastError = err.Error()
-		return
-	}
-	mErr := poddistribution.ReconcilePodDistribution(context.TODO(), serverClient, installation.Spec.NamespacePrefix, installation.Spec.Type)
-	if mErr != nil && len(mErr.Errors) > 0 {
-		logrus.Errorf("Error reconciling pod distributions %v", mErr)
-		installation.Status.LastError = mErr.Error()
-	}
 }
 
 func (r *ReconcileInstallation) updateStatusAndObject(original, installation *integreatlyv1alpha1.RHMI) error {
@@ -540,7 +512,7 @@ func (r *ReconcileInstallation) handleUninstall(installation *integreatlyv1alpha
 	metrics.SetRHMIStatus(installation)
 
 	// Clean up the products which have finalizers associated to them
-	merr := &resources.MultiErr{}
+	merr := &multiErr{}
 	finalizers := []string{}
 	for _, finalizer := range installation.Finalizers {
 		finalizers = append(finalizers, finalizer)
@@ -577,7 +549,7 @@ func (r *ReconcileInstallation) handleUninstall(installation *integreatlyv1alpha
 		//don't move to next stage until all products in this stage are removed
 		//update CR and return
 		if pendingUninstalls {
-			if len(merr.Errors) > 0 {
+			if len(merr.errors) > 0 {
 				installation.Status.LastError = merr.Error()
 				r.client.Status().Update(context.TODO(), installation)
 			}
@@ -663,12 +635,6 @@ func (r *ReconcileInstallation) preflightChecks(installation *integreatlyv1alpha
 		resources.AntiAffinityRequiredEnvVar: optionalEnvVar(func(s string) error {
 			_, err := strconv.ParseBool(s)
 			return err
-		}),
-		integreatlyv1alpha1.EnvKeyAlertSMTPFrom: requiredEnvVar(func(s string) error {
-			if s == "" {
-				return fmt.Errorf(" env var %s is required ", integreatlyv1alpha1.EnvKeyAlertSMTPFrom)
-			}
-			return nil
 		}),
 	}); err != nil {
 		return result, err
@@ -824,9 +790,9 @@ func (r *ReconcileInstallation) processStage(installation *integreatlyv1alpha1.R
 
 		if err != nil {
 			if mErr == nil {
-				mErr = &resources.MultiErr{}
+				mErr = &multiErr{}
 			}
-			mErr.(*resources.MultiErr).Add(fmt.Errorf("failed installation of %s: %w", product.Name, err))
+			mErr.(*multiErr).Add(fmt.Errorf("failed installation of %s: %w", product.Name, err))
 		}
 
 		// Verify that watches for this product CRDs have been created
@@ -963,4 +929,20 @@ func requiredEnvVar(check func(string) error) func(string, bool) error {
 
 		return check(value)
 	}
+}
+
+type multiErr struct {
+	errors []string
+}
+
+func (mer *multiErr) Error() string {
+	return "product installation errors : " + strings.Join(mer.errors, ":")
+}
+
+//Add an error to the collection
+func (mer *multiErr) Add(err error) {
+	if mer.errors == nil {
+		mer.errors = []string{}
+	}
+	mer.errors = append(mer.errors, err.Error())
 }

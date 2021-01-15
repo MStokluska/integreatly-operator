@@ -2,10 +2,8 @@ package config
 
 import (
 	"errors"
-	"strconv"
-
 	integreatlyv1alpha1 "github.com/integr8ly/integreatly-operator/pkg/apis/integreatly/v1alpha1"
-	testResources "github.com/integr8ly/integreatly-operator/test/resources"
+	"strconv"
 )
 
 type RHSSOUser struct {
@@ -48,16 +46,4 @@ func (r *RHSSOUser) Validate() error {
 		return errors.New("config product name is not defined")
 	}
 	return r.ValidateCommon()
-}
-
-func (r *RHSSOUser) GetReplicasConfig(inst *integreatlyv1alpha1.RHMI) int {
-	if testResources.RunningInProw(inst) {
-		return 1
-	}
-
-	if inst.Spec.Type == string(integreatlyv1alpha1.InstallationTypeManagedApi) {
-		return 3
-	}
-
-	return 2
 }

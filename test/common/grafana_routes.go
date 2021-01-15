@@ -19,9 +19,9 @@ import (
 	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-var (
-	grafanaCredsUsername = fmt.Sprintf("%v%02d", defaultDedicatedAdminName, 1)
-	grafanaCredsPassword = DefaultPassword
+const (
+	grafanaCredsUsername = "customer-admin-1"
+	grafanaCredsPassword = "Password1"
 )
 
 func TestCustomerGrafanaExternalRouteAccessible(t *testing.T, ctx *TestingContext) {

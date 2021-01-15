@@ -3,11 +3,10 @@ package common
 import (
 	goctx "context"
 	"fmt"
-	"testing"
-	"time"
-
 	integreatlyv1alpha1 "github.com/integr8ly/integreatly-operator/pkg/apis/integreatly/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"testing"
+	"time"
 
 	"github.com/google/go-querystring/query"
 	"github.com/integr8ly/integreatly-operator/test/resources"
@@ -30,8 +29,6 @@ type LogOptions struct {
 }
 
 func TestRHMIDeveloperUserPermissions(t *testing.T, ctx *TestingContext) {
-	testUser := fmt.Sprintf("%v%02d", DefaultTestUserName, 1)
-
 	if err := createTestingIDP(t, goctx.TODO(), ctx.Client, ctx.KubeConfig, ctx.SelfSignedCerts); err != nil {
 		t.Fatalf("error while creating testing idp: %v", err)
 	}
@@ -52,7 +49,7 @@ func TestRHMIDeveloperUserPermissions(t *testing.T, ctx *TestingContext) {
 	t.Log("retrieved openshift-Oauth route")
 
 	// get rhmi developer user tokens
-	if err := resources.DoAuthOpenshiftUser(fmt.Sprintf("%s/auth/login", masterURL), testUser, DefaultPassword, ctx.HttpClient, TestingIDPRealm, t); err != nil {
+	if err := resources.DoAuthOpenshiftUser(fmt.Sprintf("%s/auth/login", masterURL), "test-user-1", DefaultPassword, ctx.HttpClient, TestingIDPRealm, t); err != nil {
 		t.Fatalf("error occured trying to get token : %v", err)
 	}
 	t.Log("retrieved rhmi developer user tokens")

@@ -21,7 +21,7 @@ CLUSTER_URL:=$(shell sh -c "oc cluster-info | grep -Eo 'https?://[-a-zA-Z0-9\.:]
 
 # These tags are modified by the prepare-release script.
 RHMI_TAG ?= 2.7.0
-RHOAM_TAG ?= 1.1.0
+RHOAM_TAG ?= 1.0.1
 
 export SKIP_FLAKES := true
 
@@ -52,7 +52,6 @@ export SELF_SIGNED_CERTS   ?= true
 # Setting the INSTALLATION_TYPE to managed-api will configure the values required for RHOAM installs
 export INSTALLATION_TYPE   ?= managed
 
-export ALERT_SMTP_FROM ?= noreply-alert@devshift.org
 export USE_CLUSTER_STORAGE ?= true
 export OPERATORS_IN_PRODUCT_NAMESPACE ?= false # e2e tests and createInstallationCR() need to be updated when default is changed
 export DELOREAN_PULL_SECRET_NAME ?= integreatly-delorean-pull-secret
@@ -106,7 +105,7 @@ setup/service_account:
 	@oc replace --force -f deploy/role.yaml
 	@-oc create -f deploy/service_account.yaml -n $(NAMESPACE)
 	@cat deploy/$(INSTALLATION_PREFIX)/role_binding.yaml | sed "s/namespace: integreatly/namespace: $(NAMESPACE)/g" | oc replace --force -f -
-	@oc login --token=$(shell oc serviceaccounts get-token rhmi-operator -n ${NAMESPACE}) --server=${CLUSTER_URL} --kubeconfig=TMP_SA_KUBECONFIG --insecure-skip-tls-verify=true
+	@oc login --token=$(shell oc serviceaccounts get-token rhmi-operator -n ${NAMESPACE}) --server=${CLUSTER_URL} --kubeconfig=TMP_SA_KUBECONFIG
 
 .PHONY: setup/git/hooks
 setup/git/hooks:

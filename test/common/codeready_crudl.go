@@ -89,7 +89,7 @@ const (
 )
 
 var (
-	username = fmt.Sprintf("%v%02d", DefaultTestUserName, 1)
+	username = fmt.Sprintf("%v-0", DefaultTestUserName)
 	password = DefaultPassword
 )
 

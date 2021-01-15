@@ -338,12 +338,6 @@ func managedApiSpecificRules() []alertsTestRule {
 			},
 		},
 		{
-			File: NamespacePrefix + "marin3r-rejected-requests.yaml",
-			Rules: []string{
-				"RHOAMApiUsageRejectedRequestsMismatch",
-			},
-		},
-		{
 			File: NamespacePrefix + "operator-rhoam-installation-controller-alerts.yaml",
 			Rules: []string{
 				"RHOAMInstallationControllerIsNotReconciling",
