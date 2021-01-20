@@ -18,6 +18,8 @@ CONTAINER_ENGINE ?= docker
 TEST_RESULTS_DIR ?= test-results
 TEMP_SERVICEACCOUNT_NAME=rhmi-operator
 CLUSTER_URL:=$(shell sh -c "oc cluster-info | grep -Eo 'https?://[-a-zA-Z0-9\.:]*'")
+TYPE_OF_MANIFEST ?= master
+
 
 # These tags are modified by the prepare-release script.
 RHMI_TAG ?= 2.7.0
@@ -435,6 +437,6 @@ vendor/fix:
 	go mod tidy
 	go mod vendor
 
-.PHONY: manifest/release
-manifest/release:
-	@./scripts/rhoam-manifest-generator.sh
+.PHONY: manifest/rhoam
+manifest/rhoam:
+	@./scripts/rhoam-manifest-generator.sh $(TYPE_OF_MANIFEST)
