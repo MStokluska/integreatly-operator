@@ -68,6 +68,7 @@ var (
 )
 
 func TestIntegreatlyStagesStatus(t *testing.T, ctx *TestingContext) {
+	t.FailNow()
 	err := wait.PollImmediateInfinite(time.Second*15, func() (bool, error) {
 		done := true
 
