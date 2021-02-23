@@ -300,8 +300,8 @@ cluster/prepare: cluster/prepare/project cluster/prepare/configmaps cluster/prep
 .PHONY: cluster/prepare/bundle
 cluster/prepare/bundle: cluster/prepare/project cluster/prepare/configmaps cluster/prepare/smtp cluster/prepare/dms cluster/prepare/pagerduty cluster/prepare/delorean
 
-.PHONY: install/olm/bundle
-install/olm/bundle:
+.PHONY: create/olm/bundle
+create/olm/bundle:
 	./scripts/bundle-rhmi-operators.sh
 
 .PHONY: cluster/prepare/project
@@ -419,7 +419,7 @@ prepare-patch-release:
 
 .PHONY: release/prepare
 release/prepare: kustomize
-	@./scripts/prepare-release.sh
+	@KUSTOMIZE_PATH=$(KUSTOMIZE) ./scripts/prepare-release.sh
 
 .PHONY: push/csv
 push/csv:
