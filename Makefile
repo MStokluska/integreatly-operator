@@ -419,7 +419,7 @@ prepare-patch-release:
 
 .PHONY: release/prepare
 release/prepare: kustomize
-	@KUSTOMIZE_PATH=$(KUSTOMIZE) ./scripts/prepare-release.sh
+	@KUSTOMIZE_PATH=$(which kustomize) ./scripts/prepare-release.sh
 
 .PHONY: push/csv
 push/csv:

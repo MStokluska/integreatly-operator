@@ -29,11 +29,11 @@ else
 fi
 
 # Optional environment variable to set a different Kustomize path. If this
-# variable is not set, it will use the one from the $PATH
+# variable is not set, it will use the one from the $PATH or install Kustomize
 if [[ -z $KUSTOMIZE_PATH ]]; then
-  KUSTOMIZE=$(which kustomize)
+  KUSTOMIZE="/usr/local/bin/kustomize"
 else
-  KUSTOMIZE=$KUSTOMIZE_PATH
+  KUSTOMIZE="/usr/local/bin/kustomize"
 fi
 
 create_new_csv() {
