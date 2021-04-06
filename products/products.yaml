@@ -1,0 +1,54 @@
+products:
+  - name: 3scale
+    version: v0.6.0
+    url: "https://github.com/3scale/3scale-operator"
+    installType: "rhmi/rhoam"
+  - name: apicurito-registry
+    version: 0.0.3
+    url: "https://github.com/Apicurio/apicurio-registry-operator"
+    installType: "rhmi"
+  - name: cloud-resource-operator
+    version: v0.23.0
+    url: "https://github.com/integr8ly/cloud-resource-operator"
+    installType: "rhoam/rhmi"
+  - name: code-ready
+    version: 2.1.1.GA
+    url: "https://github.com/eclipse/che-operator"
+    installType: "rhmi"
+  - name: grafana
+    version: v3.8.1
+    url: "https://github.com/integr8ly/grafana-operator"
+    installType: "rhoam/rhmi"
+  - name: mariner
+    version: v0.7.0
+    url: "https://github.com/3scale/marin3r"
+    installType: "rhoam"
+  - name: application-monitoring-operator
+    version: v1.5.0
+    url: "https://github.com/integr8ly/application-monitoring-operator"
+    installType: "rhmi/rhoam"
+  - name: keycloak
+    version: 12.0.3
+    url: "https://github.com/keycloak/keycloak-operator"
+    installType: "rhmi/rhoam"
+  - name: solution-explorer
+    version: v0.0.62
+    url: "https://github.com/integr8ly/tutorial-web-app-operator"
+    installType: "rhmi"
+  - name: unified-push
+    version: v0.5.0
+    url: "https://github.com/aerogear/unifiedpush-operator"
+    installType: "rhmi"
+  # Using productized versions
+  # - name: fuse
+  #   version: "7.6.0"
+  #   url: "https://github.com/syndesisio/syndesis/tree/2.x/install/operator"
+  #   installType: "rhmi"
+  # - name: amq-online     ???????????????????????????????
+  #   version: 1.4.0
+  #   url: "https://github.com/jboss-container-images/amq-online-images"
+  #   installType: "rhmi"
+  # - name: amq-streams     ???????????????????????????????
+  #   version: 1.4.0
+  #   url: "https://github.com/jboss-container-images/amq-online-images"
+  #   installType: "rhmi"
