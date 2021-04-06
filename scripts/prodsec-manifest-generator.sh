@@ -5,31 +5,50 @@
 
 # Compares current manifest vs manifest generated for master
 manifest_compare() {
-    # Additional sorting of the master manifest is required as it seems that prow sorts files in a different manner.
-    sort -u "$RHOAM_CURRENT_MASTER" > "$RHOAM_SORTED_MASTER"
-
-    MANIFESTS_DIFF=$(diff --suppress-common-lines ${RHOAM_MASTER_FROM_BRANCH} ${RHOAM_SORTED_MASTER})
+    MANIFESTS_DIFF=$(diff --suppress-common-lines ${MASTER_FROM_BRANCH} ${CURRENT_MASTER})
     if [ ! -z "$MANIFESTS_DIFF" ]; then
-        echo "Difference found between master manifests, run `TYPE_OF_MANIFEST=master make manifest/prodsec` and push PR again"
+        echo "Difference found between master manifests"
         
         # Delete sorted files
-        rm -f "$RHOAM_MASTER_FROM_BRANCH"
-        rm -f "$RHOAM_SORTED_MASTER"
+        rm -f "$MASTER_FROM_BRANCH"
+        rm -f "$SORTED_MASTER"
         exit 1
     else
         echo "No difference found between the manifests"
 
         # Delete sorted files
-        rm -f "$RHOAM_MASTER_FROM_BRANCH"
-        rm -f "$RHOAM_SORTED_MASTER"
+        rm -f "$MASTER_FROM_BRANCH"
+        rm -f "$SORTED_MASTER"
         exit 0
     fi
 }
 
 # Generates the manifest, it can be either master or production manifest
 manifest_generate() {
+    filePath="./products/products.yaml"
+    products=9
     # Pre-filetered manifest file
     PRE_SORTED_FILE="prodsec-manifests/pre-sorted-file.txt"
+
+    # Clone mangen
+    tmpDir=$(mktemp -d)
+    git clone https://gitlab.cee.redhat.com/pmai/mangen.git $tmpDir
+
+    for (( i=0; i<=$products; i++))
+    do
+        productName=$(yq r ${filePath} "products[$i].name")
+        productVersion=$(yq r ${filePath} "products[$i].version")
+        productUrl=$(yq r ${filePath} "products[$i].url")
+        productInstallType=$(yq r ${filePath} "products[$i].installType")
+        tmp=$(mktemp)
+   
+        if [[ "$productInstallType" == *"$OLM_TYPE"* ]]; then
+            echo "Generating manifest for product: ${productName}"
+            outputManifest=$(python $tmpDir/mangen.py ${OLM_TYPE} ${VERSION} ${productUrl} ${productVersion} $tmp)
+
+            cat "$tmp" >> "${PRE_SORTED_FILE}"
+        fi
+    done
 
     # Dependencies used
     go mod graph | cut -d " " -f 2 | tr @ - | while read x; do echo "${SERVICE_NAME}:${VERSION}/$x" >> "$PRE_SORTED_FILE"; done
@@ -37,33 +56,63 @@ manifest_generate() {
     # Remove repeating dependencies
     sort -u "$PRE_SORTED_FILE" > "prodsec-manifests/$FILE_NAME"
 
-    # Delete pre-sorted file
+    # Delete pre-sorted file and tmp files
     rm -f "$PRE_SORTED_FILE"
+    rm -rf $tmpDir
+    rm $tmp
 }
-
-
 
 case $TYPE_OF_MANIFEST in
 "master")
-    SERVICE_NAME="services-rhoam"
-    VERSION="master"
-    FILE_NAME="rhoam-master-manifest.txt"
-
+    case $OLM_TYPE in
+      "integreatly-operator")
+        OLM_TYPE="rhmi"
+        VERSION="master"
+        FILE_NAME="rhmi-master-manifest.txt"
+        SERVICE_NAME="services-rhmi"
+        ;;
+      "managed-api-service")
+        OLM_TYPE="rhoam"
+        VERSION="master"
+        FILE_NAME="rhoam-master-manifest.txt"
+        SERVICE_NAME="services-rhoam"
+        ;;
+      *)
+        echo "Invalid OLM_TYPE set"
+        echo "Use \"integreatly-operator\" or \"managed-api-service\""
+        exit 1
+        ;;
+    esac
     manifest_generate
-    exit 0
     ;;
 "compare")
-    SERVICE_NAME="services-rhoam"
-    VERSION="master"
-    FILE_NAME="master-from-branch-manifest.txt"
-
-    RHOAM_MASTER_FROM_BRANCH="prodsec-manifests/master-from-branch-manifest.txt"
-    RHOAM_CURRENT_MASTER="prodsec-manifests/rhoam-master-manifest.txt"
-    RHOAM_SORTED_MASTER="prodsec-manifests/rhoam-master-sorted-manifest.txt"
-
+        case $OLM_TYPE in
+      "integreatly-operator")
+        OLM_TYPE="rhmi"
+        VERSION="master"
+        FILE_NAME="master-from-branch-manifest.txt"
+        SERVICE_NAME="services-rhmi"
+        MASTER_FROM_BRANCH="prodsec-manifests/master-from-branch-manifest.txt"
+        CURRENT_MASTER="prodsec-manifests/rhmi-master-manifest.txt"
+        SORTED_MASTER="prodsec-manifests/rhmi-master-sorted-manifest.txt"
+        ;;
+      "managed-api-service")
+        OLM_TYPE="rhoam"
+        VERSION="master"
+        FILE_NAME="master-from-branch-manifest.txt"
+        SERVICE_NAME="services-rhoam"
+        MASTER_FROM_BRANCH="prodsec-manifests/master-from-branch-manifest.txt"
+        CURRENT_MASTER="prodsec-manifests/rhoam-master-manifest.txt"
+        SORTED_MASTER="prodsec-manifests/rhoam-master-sorted-manifest.txt"
+        ;;
+      *)
+        echo "Invalid OLM_TYPE set"
+        echo "Use \"integreatly-operator\" or \"managed-api-service\""
+        exit 1
+        ;;
+    esac
     manifest_generate
     manifest_compare
-    exit 0
     ;;
 "production")
     case $OLM_TYPE in
