@@ -3,6 +3,7 @@ services-rhmi:master/3scale-v0.6.0/github.com/RHsyseng/operator-utils-v0.0.0-202
 services-rhmi:master/3scale-v0.6.0/github.com/coreos/prometheus-operator-v0.34.0
 services-rhmi:master/3scale-v0.6.0/github.com/ghodss/yaml-v1.0.1-0.20190212211648-25d852aebe32
 services-rhmi:master/3scale-v0.6.0/github.com/go-bindata/go-bindata-v3.1.1+incompatible
+services-rhmi:master/3scale-v0.6.0/github.com/go-logr/logr-v0.1.0
 services-rhmi:master/3scale-v0.6.0/github.com/go-openapi/spec-v0.19.4
 services-rhmi:master/3scale-v0.6.0/github.com/go-playground/validator/v10-v10.2.0
 services-rhmi:master/3scale-v0.6.0/github.com/google/go-cmp-v0.3.1
