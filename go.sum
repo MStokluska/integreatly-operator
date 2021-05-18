@@ -771,7 +771,7 @@ github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mq
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
 github.com/integr8ly/application-monitoring-operator v1.4.0 h1:0QXO9M0ztJRnUeGXtOhPX5c7Qv3n7dr+s9tQEni2CWQ=
 github.com/integr8ly/application-monitoring-operator v1.4.0/go.mod h1:bC4f/eZfXeB2vCJP2iZnWYDm/znUcsETOYHpHZJIMsE=
-github.com/integr8ly/cloud-resource-operator v0.24.0 h1:WTKNewFRMQgJzuR57KlaHkNj96rcSx6ic8meQrQAPLw=
+github.com/integr8ly/cloud-resource-operator v0.24.0 h1:9xJ0yOK5e30lqrN7NRK/ualuJeiAdLt8eDKxl0R3iHw=
 github.com/integr8ly/cloud-resource-operator v0.24.0/go.mod h1:pxmR7H2T5MJqcw1F9DTmsX3YfEc419Q/tp5m2g8xdZk=
 github.com/integr8ly/grafana-operator v2.0.0+incompatible h1:wSqKpcr5wE6pws35iJeOYGVBMJbSNEhcE6hlD0zF9NU=
 github.com/integr8ly/grafana-operator v2.0.0+incompatible/go.mod h1:uFZI5IG74KBTtqzdwAMvoFoAC3RlgF5VaJypcCzyVVs=
@@ -892,6 +892,8 @@ github.com/markbates/inflect v1.0.4/go.mod h1:1fR9+pO2KHEO9ZRtto13gDwwZaAKstQzfe
 github.com/markbates/oncer v0.0.0-20181203154359-bf2de49a0be2/go.mod h1:Ld9puTsIW75CHf65OeIOkyKbteujpZVXDpWK6YGZbxE=
 github.com/markbates/safe v1.0.1/go.mod h1:nAqgmRi7cY2nqMc92/bSEeQA+R4OheNU2T1kNSCBdG0=
 github.com/marstr/guid v1.1.0/go.mod h1:74gB1z2wpxxInTG6yaqA7KrtM0NZ+RbrcqDvYHefzho=
+github.com/matryer/moq v0.2.1 h1:4roNlIsfEXb7127O3v558H+9jmV70G2FAJPYIZX84lQ=
+github.com/matryer/moq v0.2.1/go.mod h1:9RtPYjTnH1bSBIkpvtHkFN7nbWAnO7oRpdJkEIn6UtE=
 github.com/mattbaird/jsonpatch v0.0.0-20171005235357-81af80346b1a/go.mod h1:M1qoD/MqPgTZIk0EWKB38wE28ACRfVcn+cU08jyArI0=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-colorable v0.1.2/go.mod h1:U0ppj6V5qS13XJ6of8GYAs25YV2eR4EVcfRqFIhoBtE=
