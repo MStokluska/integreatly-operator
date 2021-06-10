@@ -634,3 +634,7 @@ spec:
     name: integreatly-test-component1
   - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
     name: integreatly-test-component2
+  - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
+    name: testComponent4
+  - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
+    name: testComponent5
