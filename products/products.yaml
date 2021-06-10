@@ -22,25 +22,25 @@ products:
     url: "https://github.com/integr8ly/grafana-operator"
     installType: "rhoam/rhmi"
     manifestsDir: "integreatly-grafana"
-    relatedImages: true
+    relatedImages: false
   - name: marin3r
     version: v0.7.0
     url: "https://github.com/3scale/marin3r"
     installType: "rhoam"
     manifestsDir: "integreatly-marin3r"
-    relatedImages: true
+    relatedImages: false
   - name: application-monitoring-operator
     version: v1.6.0
     url: "https://github.com/integr8ly/application-monitoring-operator"
     installType: "rhmi/rhoam"
     manifestsDir: "integreatly-monitoring"
-    relatedImages: true
+    relatedImages: false
   - name: keycloak-operator
     version: 13.0.1
     url: "https://github.com/keycloak/keycloak-operator"
     installType: "rhmi/rhoam"
     manifestsDir: "integreatly-rhsso"
-    relatedImages: true
+    relatedImages: false
   - name: tutorial-web-app-operator
     version: v0.0.62
     url: "https://github.com/integr8ly/tutorial-web-app-operator"
