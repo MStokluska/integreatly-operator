@@ -630,3 +630,7 @@ spec:
   relatedImages:
   - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
     name: integreatly-cloud-resources
+  - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
+    name: integreatly-test-component1
+  - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
+    name: integreatly-test-component2

@@ -51,7 +51,7 @@ metadata:
     capabilities: Basic Install
     categories: RHOAM integration
     certified: "false"
-    containerImage: quay.io/integreatly/managed-api-service:rhoam-v1.9.0
+    containerImage: quay.io/integreatly/managed-api-service:rhoam-v1.7.0
     operators.operatorframework.io/builder: operator-sdk-v1.2.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
     support: RHOAM
@@ -415,7 +415,7 @@ spec:
                   value: default@test.com
                 - name: QUOTA
                   value: "20"
-                image: quay.io/integreatly/managed-api-service:rhoam-v1.9.0
+                image: quay.io/integreatly/managed-api-service:rhoam-v1.7.0
                 imagePullPolicy: Always
                 name: rhmi-operator
                 ports:
@@ -630,3 +630,7 @@ spec:
   relatedImages:
   - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
     name: integreatly-cloud-resources
+  - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
+    name: integreatly-test-component1
+  - image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
+    name: integreatly-test-component2
