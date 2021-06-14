@@ -544,7 +544,7 @@ spec:
                 - --tls-key-name=apiserver.key
                 command:
                 - /manager
-                image: quay.io/3scale/component1:v0.7.0
+                image: quay.io/3scale/component2:v0.7.0
                 name: webhook
                 ports:
                 - containerPort: 9443
