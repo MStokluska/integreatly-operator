@@ -230,7 +230,7 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: application-monitoring-operator
-                image: quay.io/integreatly/application-monitoring-operator:1.6.0
+                image: quay.io/integreatly/comp1:1.6.0
                 imagePullPolicy: Always
                 name: application-monitoring-operator
                 ports:

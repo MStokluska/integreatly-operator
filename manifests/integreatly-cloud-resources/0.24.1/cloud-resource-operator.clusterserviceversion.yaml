@@ -168,7 +168,7 @@ spec:
                   value: cloud-resource-operator
                 - name: TAG_KEY_PREFIX
                   value: integreatly.org/
-                image: quay.io/mstoklus/cloud-resource-operator:v0.32.0
+                image: quay.io/mstoklus/comp1:v0.32.0
                 imagePullPolicy: Always
                 name: cloud-resource-operator
                 resources: {}
