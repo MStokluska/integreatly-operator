@@ -4,7 +4,7 @@ products:
     url: "https://github.com/3scale/3scale-operator"
     installType: "rhmi/rhoam"
     manifestsDir: "integreatly-3scale"
-    quayScan: false
+    quayScan: true
   - name: apicurito-registry-operator
     version: 0.0.3
     url: "https://github.com/Apicurio/apicurio-registry-operator"
