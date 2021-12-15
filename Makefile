@@ -30,7 +30,7 @@ TEMP_SERVICEACCOUNT_NAME=rhmi-operator
 SANDBOX_NAMESPACE ?= sandbox-rhoam-operator
 
 # These tags are modified by the prepare-release script.
-RHMI_TAG ?= 2.9.0
+RHMI_TAG ?= 2.9.1
 RHOAM_TAG ?= 1.20.0
 
 export SKIP_FLAKES := true
