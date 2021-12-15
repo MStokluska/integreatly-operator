@@ -51,13 +51,13 @@ metadata:
     capabilities: Basic Install
     categories: RHMI integration
     certified: "false"
-    containerImage: quay.io/integreatly/integreatly-operator:v2.9.1-rc2
+    containerImage: quay.io/integreatly/integreatly-operator:v2.9.1
     olm.skipRange: '>=2.4.0 <2.6.1'
     operatorframework.io/suggested-namespace: redhat-rhmi-operator
     operators.operatorframework.io/builder: operator-sdk-v1.11.0+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
     support: RHMI
-    serviceAffecting: "false"
+    serviceAffecting: "true"
   name: integreatly-operator.v2.9.1
   namespace: placeholder
 spec:
@@ -424,7 +424,7 @@ spec:
                         value: default@test.com
                       - name: QUOTA
                         value: "200"
-                    image: quay.io/integreatly/integreatly-operator:v2.9.1-rc2
+                    image: quay.io/integreatly/integreatly-operator:v2.9.1
                     imagePullPolicy: Always
                     name: rhmi-operator
                     ports:
