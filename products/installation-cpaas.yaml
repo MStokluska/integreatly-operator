@@ -54,7 +54,6 @@
 # Common fields:
 # * `channel`: Name of the channel to point the Subscription to. Defaults to "rhmi"
 # * `package`: Name of the package. Defaults to the subscription name of each product
-#
 products:
   3scale:
     channel: threescale-2.11
