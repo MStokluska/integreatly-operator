@@ -81,7 +81,6 @@ Include the `INSTALLATION_TYPE`. See [here](#3-configuration-optional) about thi
 INSTALLATION_TYPE=<managed/managed-api> make cluster/prepare/local
 ```
 
-
 ### 3. Configuration (optional)
 
 If you are running RHOAM against a cluster which is smaller than the requirements listed above, you 
