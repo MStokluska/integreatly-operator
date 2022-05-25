@@ -7,7 +7,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - "apps.3scale.net"
+  - apps.3scale.net
   resources:
   - *
   verbs:
