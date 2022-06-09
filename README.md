@@ -87,7 +87,6 @@ Table belong are typical requested values needed for RHOAM on a cluster with clu
 | 50 Million   | 14 vCPU  | 26.5 Gb |
 
 ### 3. Prepare your cluster
-
 If you are working against a fresh cluster it will need to be prepared using the following. 
 Ensure you are logged into a cluster by `oc whoami`.
 Include the `INSTALLATION_TYPE`. See [here](#3-configuration-optional) about this and other optional configuration variables.
