@@ -140,10 +140,6 @@ spec:
           - description: deadMansSnitchSecret
             displayName: deadMansSnitchSecret
             path: deadMansSnitchSecret
-        statusDescriptors:
-          - description: The status of each of the RHMI CR
-            displayName: RHMI CR Status
-            path: status
         version: v1alpha1
   description: RHOAM integration suite of tools
   displayName: RHOAM
